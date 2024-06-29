@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 app.use(bodyParser.json());
@@ -17,6 +18,7 @@ mongoose.connect(process.env.MONGODB_URI)
     .catch((err) => console.error("Failed to connect to MongoDB", err));
 
 app.use('/users', userRoutes);
+app.use('/admin', adminRoutes);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server started on port ${process.env.PORT}`);
