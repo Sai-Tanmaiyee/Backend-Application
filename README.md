@@ -33,7 +33,8 @@ This is a backend API for user and admin management, including user registration
 
 ```sh
 git clone https://github.com/your-username/user-management-api.git
-cd user-management-api ```
+cd user-management-api
+```
 
 2. **Install dependencies**:
 ```sh
