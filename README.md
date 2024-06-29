@@ -27,10 +27,21 @@ This is a backend API for user and admin management, including user registration
 - MongoDB instance running
 - Environment variables set up for email service
 
-## Installation
+## Installation & Starting the Server
 
 1. **Clone the repository**:
 
 ```sh
 git clone https://github.com/your-username/user-management-api.git
-cd user-management-api
+cd user-management-api ```
+
+2. **Install dependencies**:
+```sh
+npm install
+```
+
+3. **Start the server**:
+```sh
+npm start
+```
+The server will start on http://localhost:3002.
