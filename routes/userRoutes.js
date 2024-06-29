@@ -2,6 +2,9 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const nodemailer = require('nodemailer')
+const jwt = require('jsonwebtoken')
+const JWT_SECRET = 'BackendAPI'
+const { verifyToken } = require('../middlewares/auth');
 
 const router = express.Router();
 
@@ -71,7 +74,8 @@ router.post('/login', async (req, res) => {
             if (!user.isVerified) {
                 return res.status(400).json({ message: 'Account not verified' });
             }
-            res.status(200).json({ message: 'Login successful', user });
+            const token = jwt.sign({id: user._id, email: user.email}, JWT_SECRET, { expiresIn: '1h' })
+            res.status(200).json({ message: 'Login successful', token });
         } else {
             res.status(401).json({ message: 'Invalid email or password' });
         }
@@ -81,7 +85,7 @@ router.post('/login', async (req, res) => {
 });
 
 
-router.post('/add-info', async(req, res) => {
+router.post('/add-info', verifyToken, async(req, res) => {
     const { email, location, age, work, dob, description } = req.body;
     try {
         const user = await User.findOne({ email });
@@ -101,13 +105,33 @@ router.post('/add-info', async(req, res) => {
     }
 })
 
-router.put('/:id', async (req, res) => {
-    const { email, location, age, work, dob, description } = req.body;
+
+router.get('/me', verifyToken, async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, { email, location, age, work, dob, description }, { new: true });
+        const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+router.put('/update', verifyToken, async (req, res) => {
+    const { location, age, work, dob, description } = req.body;
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        user.location = location ?? user.location;
+        user.age = age ?? user.age;
+        user.work = work ?? user.work;
+        user.dob = dob ?? user.dob;
+        user.description = description ?? user.description;
+        await user.save();
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({ message: error.message });

@@ -2,6 +2,9 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const Admin = require('../models/Admin');
 const User = require('../models/User')
+const jwt = require('jsonwebtoken');
+const { verifyToken } = require('../middlewares/auth');
+const JWT_SECRET = 'BackendAPI';
 
 const router = express.Router();
 
@@ -30,7 +33,8 @@ router.post('/login', async (req, res) => {
     try {
         const admin = await Admin.findOne({ email });
         if (admin && await bcrypt.compare(password, admin.password)) {
-            res.status(200).json({ message: 'Login successful', admin });
+            const token = jwt.sign({ id: admin._id, email: admin.email }, JWT_SECRET, { expiresIn: '1h' });
+            res.status(200).json({ message: 'Login successful', token });
         } else {
             res.status(401).json({ message: 'Invalid email or password' });
         }
@@ -39,7 +43,17 @@ router.post('/login', async (req, res) => {
     }
 });
 
-router.get('/:username', async(req, res) => {
+router.get('/users', verifyToken, async(req, res) => {
+    try {
+        const user = await User.find(); //returns an array of user objects
+        const usernames = user.map(user => user.username)
+        res.status(200).json(usernames);
+    } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+})
+
+router.get('/:username', verifyToken, async(req, res) => {
     const { username } = req.params;
     try {
         const user = await User.find({ username });
@@ -52,7 +66,7 @@ router.get('/:username', async(req, res) => {
         }
 })
 
-router.delete('/:username', async(req, res) =>{
+router.delete('/:username', verifyToken, async(req, res) =>{
     const { username } = req.params;
     try {
         const result = await User.deleteOne({ username });
