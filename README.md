@@ -4,11 +4,6 @@
 
 This is a backend API for user and admin management, including user registration, email verification, login, and profile management. The API also supports admin functionalities such as viewing and deleting users.
 
-PI Endpoints
-User Endpoints
-Register User
-URL: /users/signup
-Method: POST
 ## Features
 
 - User registration with email verification via OTP
@@ -39,11 +34,3 @@ Method: POST
 ```sh
 git clone https://github.com/your-username/user-management-api.git
 cd user-management-api
-1  
-
-
-API Endpoints
-User Endpoints
-Register User
-URL: /users/signup
-Method: POST
